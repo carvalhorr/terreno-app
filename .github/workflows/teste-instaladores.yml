@@ -1,0 +1,82 @@
+name: Teste dos instaladores
+
+# Baixa cada instalador publico numa maquina limpa, abre o aplicativo sem tela
+# por 30 segundos e confere se continua aberto. Roda so quando disparado a mao.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  BASE: https://github.com/carvalhorr/terreno-app/releases/download/v0.9.1-beta
+  TERRENO_TELEMETRY: "0"
+  QT_QPA_PLATFORM: offscreen
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Baixar e abrir
+        run: |
+          curl -fsSL -o t.tar.gz "$BASE/Terreno-0.9.1-beta-linux-x86_64.tar.gz"
+          ls -l t.tar.gz
+          tar xzf t.tar.gz
+          ./Terreno/Terreno > saida.log 2>&1 &
+          PID=$!
+          sleep 30
+          if kill -0 $PID 2>/dev/null; then
+            echo "OK: aberto apos 30 s"; ps -o rss= -p $PID; kill $PID
+          else
+            echo "FALHOU: o aplicativo fechou"; tail -n 60 saida.log; exit 1
+          fi
+          tail -n 30 saida.log || true
+
+  macos-arm64:
+    runs-on: macos-latest
+    timeout-minutes: 15
+    steps:
+      - name: Baixar e abrir
+        run: |
+          uname -m
+          curl -fsSL -o t.dmg "$BASE/Terreno-0.9.1-beta-macos-arm64.dmg"
+          ls -l t.dmg
+          hdiutil attach t.dmg -nobrowse -mountpoint /Volumes/TerrenoTeste
+          APP=$(find /Volumes/TerrenoTeste -maxdepth 1 -name '*.app' | head -n 1)
+          cp -R "$APP" ./Terreno.app
+          hdiutil detach /Volumes/TerrenoTeste
+          codesign -dv ./Terreno.app 2>&1 | head -n 8 || true
+          BIN=$(find ./Terreno.app/Contents/MacOS -maxdepth 1 -type f -perm +111 | head -n 1)
+          echo "Binario: $BIN"; file "$BIN"
+          "$BIN" > saida.log 2>&1 &
+          PID=$!
+          sleep 30
+          if kill -0 $PID 2>/dev/null; then
+            echo "OK: aberto apos 30 s"; ps -o rss= -p $PID; kill $PID
+          else
+            echo "FALHOU: o aplicativo fechou"; tail -n 60 saida.log; exit 1
+          fi
+          tail -n 30 saida.log || true
+
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - name: Baixar e abrir
+        shell: pwsh
+        run: |
+          curl.exe -fsSL -o t.zip "$env:BASE/Terreno-0.9.1-beta-windows-x64.zip"
+          (Get-Item t.zip).Length
+          Expand-Archive t.zip -DestinationPath .
+          $p = Start-Process -FilePath .\Terreno\Terreno.exe -PassThru -RedirectStandardOutput saida.log -RedirectStandardError erro.log
+          Start-Sleep -Seconds 30
+          $p.Refresh()
+          if ($p.HasExited) {
+            Write-Output "FALHOU: o aplicativo fechou (codigo $($p.ExitCode))"
+            Get-Content saida.log, erro.log -Tail 60 -ErrorAction SilentlyContinue
+            exit 1
+          }
+          Write-Output "OK: aberto apos 30 s; memoria $([math]::Round($p.WorkingSet64/1MB)) MB"
+          Stop-Process -Id $p.Id -Force
+          Get-Content saida.log, erro.log -Tail 30 -ErrorAction SilentlyContinue
