@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 env:
-  BASE: https://github.com/carvalhorr/terreno-app/releases/download/v0.9.1-beta
+  BASE: https://github.com/carvalhorr/terreno-app/releases/download/v0.9.2-beta
   TERRENO_TELEMETRY: "0"
   QT_QPA_PLATFORM: offscreen
 
@@ -20,7 +20,7 @@ jobs:
     steps:
       - name: Baixar e abrir
         run: |
-          curl -fsSL -o t.tar.gz "$BASE/Terreno-0.9.1-beta-linux-x86_64.tar.gz"
+          curl -fsSL -o t.tar.gz "$BASE/Terreno-0.9.2-beta-linux-x86_64.tar.gz"
           ls -l t.tar.gz
           tar xzf t.tar.gz
           sudo apt-get update -qq
@@ -63,7 +63,7 @@ jobs:
       - name: Baixar e abrir
         run: |
           uname -m
-          curl -fsSL -o t.dmg "$BASE/Terreno-0.9.1-beta-macos-arm64.dmg"
+          curl -fsSL -o t.dmg "$BASE/Terreno-0.9.2-beta-macos-arm64.dmg"
           ls -l t.dmg
           hdiutil attach t.dmg -nobrowse -mountpoint /Volumes/TerrenoTeste
           APP=$(find /Volumes/TerrenoTeste -maxdepth 1 -name '*.app' | head -n 1)
@@ -107,7 +107,7 @@ jobs:
       - name: Baixar e abrir
         shell: pwsh
         run: |
-          curl.exe -fsSL -o t.zip "$env:BASE/Terreno-0.9.1-beta-windows-x64.zip"
+          curl.exe -fsSL -o t.zip "$env:BASE/Terreno-0.9.2-beta-windows-x64.zip"
           (Get-Item t.zip).Length
           Expand-Archive t.zip -DestinationPath .
           $p = Start-Process -FilePath .\Terreno\Terreno.exe -PassThru -RedirectStandardOutput saida.log -RedirectStandardError erro.log
