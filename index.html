@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Terreno — planeje sua terra sobre o relevo real (beta)</title>
+<meta name="description" content="Terreno: desenhe casas, estradas, pomares e painéis solares no mapa de satélite e veja tudo em 3D sobre o relevo real. Gratuito, beta, para Mac, Windows e Linux.">
+<meta property="og:title" content="Terreno — planeje sua terra sobre o relevo real">
+<meta property="og:description" content="Mapa de satélite, 3D com elevação, declividade, caminhos da água, sol e rede elétrica. Beta gratuito para Mac, Windows e Linux.">
+<meta property="og:image" content="img/cena-completa.jpg">
+<link rel="icon" href="img/icone.png">
+<style>
+:root{--bg:#f7f5ef;--surface:#fff;--ink:#1f2a1f;--ink2:#4d5a4b;--muted:#7a8577;--line:#e2ddd0;--accent:#2f6b3a;--accent2:#24552d;--accentInk:#fff;--earth:#a8714d;--soft:#eef0e6;--shadow:0 1px 2px rgba(30,40,20,.06),0 8px 24px rgba(30,40,20,.08)}
+@media (prefers-color-scheme:dark){:root{--bg:#141a14;--surface:#1c241c;--ink:#e8ede4;--ink2:#c2ccbd;--muted:#93a08f;--line:#2c372b;--accent:#6fbf7d;--accent2:#8fd39b;--accentInk:#0f1a10;--earth:#d39a73;--soft:#1f2a1f;--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35)}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}img{max-width:100%;height:auto;display:block}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+header.top{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:12px;height:60px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:19px;color:var(--ink);text-decoration:none}
+.brand img{width:30px;height:30px;border-radius:7px}
+.badge{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--earth);border:1px solid currentColor;border-radius:999px;padding:1px 8px}
+.top nav{margin-left:auto;display:flex;align-items:center;gap:18px;font-size:15px}
+.top nav a{color:var(--ink2);text-decoration:none}.top nav a:hover{color:var(--ink)}
+.langs{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.langs button{all:unset;cursor:pointer;padding:4px 10px;font-size:13px;font-weight:600;color:var(--ink2)}
+.langs button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.langs button:focus-visible,.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hero{padding:56px 0 24px}
+.hero .wrap{display:grid;grid-template-columns:1.05fr 1fr;gap:44px;align-items:center}
+h1{font-size:clamp(34px,4.6vw,52px);line-height:1.08;letter-spacing:-.02em;margin:0 0 18px}
+.lede{font-size:19px;color:var(--ink2);margin:0 0 26px;max-width:34em}
+.ctas{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:13px 20px;border-radius:10px;background:var(--accent);color:var(--accentInk);text-decoration:none;font-weight:650;font-size:16px;box-shadow:var(--shadow)}
+.btn:hover{background:var(--accent2)}
+.btn.ghost{background:transparent;color:var(--ink);box-shadow:none;border:1px solid var(--line)}
+.btn.ghost:hover{background:var(--soft)}
+.fine{font-size:14px;color:var(--muted);margin-top:14px}
+.shot{border-radius:14px;overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--line);background:#111}
+section{padding:56px 0}
+h2{font-size:clamp(26px,3vw,34px);line-height:1.15;letter-spacing:-.01em;margin:0 0 10px}
+.sub{color:var(--ink2);margin:0 0 30px;max-width:44em}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px}
+.card h3{font-size:17px;margin:10px 0 6px}.card p{margin:0;color:var(--ink2);font-size:15px}
+.ico{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;background:var(--soft);color:var(--accent)}
+.ico svg{width:22px;height:22px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+figure{margin:0}figcaption{font-size:14px;color:var(--muted);margin-top:8px}
+.note{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--earth);border-radius:12px;padding:18px 22px;max-width:50em}
+.note p{margin:.2em 0;color:var(--ink2)}
+.dl{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.dl a{display:block;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;text-decoration:none;color:var(--ink)}
+.dl a:hover{border-color:var(--accent)}
+.dl a.mine{border:2px solid var(--accent)}
+.dl b{display:block;font-size:16px}.dl span{font-size:13px;color:var(--muted)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:22px}
+.steps h3{font-size:16px;margin:0 0 6px}.steps p,.steps li{font-size:15px;color:var(--ink2)}.steps ol{margin:0;padding-left:20px}
+.hero .wrap>*,.grid>*,.pair>*,.dl>*,.steps>*{min-width:0}code{overflow-wrap:anywhere}body{overflow-x:hidden}
+.row{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:40px;align-items:center;margin:0 0 56px}.row.flip{grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr)}.row.flip .txt{order:2}.row h3{font-size:24px;line-height:1.2;margin:0 0 10px}.row p{color:var(--ink2);margin:0;font-size:17px}@media (max-width:900px){.row,.row.flip{grid-template-columns:minmax(0,1fr);gap:16px}.row.flip .txt{order:0}}
+footer{border-top:1px solid var(--line);padding:28px 0 40px;color:var(--muted);font-size:14px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-between}
+@media (max-width:900px){.hero .wrap{grid-template-columns:minmax(0,1fr)}.grid,.steps{grid-template-columns:1fr 1fr}.dl{grid-template-columns:1fr 1fr}.top nav a{display:none}}
+@media (max-width:600px){.grid,.steps,.pair,.dl{grid-template-columns:minmax(0,1fr)}.hero{padding-top:32px}.lede{font-size:17px}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="#"><img src="img/icone.png" alt="">Terreno <span class="badge">beta</span></a>
+  <nav>
+    <a href="#recursos"><span lang="pt">Recursos</span></a>
+    <a href="#baixar"><span lang="pt">Baixar</span></a>
+    <a href="#privacidade"><span lang="pt">Privacidade</span></a>
+  </nav>
+</div></header>
+
+<main>
+<section class="hero"><div class="wrap">
+  <div>
+    <h1><span lang="pt">Planeje sua terra sobre o relevo real.</span></h1>
+    <p class="lede"><span lang="pt">Desenhe casas, estradas, pomares e painéis solares no mapa de satélite e veja tudo em 3D, com declividade, caminhos da água, sol e rede elétrica. Antes de chamar a máquina, saiba onde construir.</span></p>
+    <div class="ctas">
+      <a class="btn" id="cta" href="#baixar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M6 11l6 6 6-6M5 21h14"/></svg><span id="cta-label"><span lang="pt">Baixar grátis</span></span></a>
+      <a class="btn ghost" href="#recursos"><span lang="pt">O que ele faz</span></a>
+    </div>
+    <p class="fine"><span lang="pt">Versão beta 0.9.1 · Mac, Windows e Linux · em português e inglês</span></p>
+  </div>
+  <figure class="shot">
+    <img src="img/cena-completa.jpg" width="1600" height="1298" alt="Relevo 3D de uma região de morros com uma usina solar, duas antenas no alto dos morros, linhas de visada até casas e a rede elétrica da distribuidora">
+    
+  </figure>
+</div></section>
+
+<section id="recursos"><div class="wrap">
+  <h2><span lang="pt">Tudo o que você olharia andando pela terra</span></h2>
+  <p class="sub"><span lang="pt">Dados públicos de elevação, satélite, água, sol e rede elétrica, juntos num só plano que você desenha e guarda no seu computador.</span></p>
+  <div class="row">
+    <div class="txt"><h3><span lang="pt">O sol em qualquer dia e hora</span></h3><p><span lang="pt">Escolha a data e a hora e veja o sol iluminar o relevo, do nascer ao pôr do sol. Veja onde a casa no alto do morro pega o último sol da tarde e o que fica na sombra.</span></p></div>
+    <figure class="shot"><img src="img/por-do-sol.jpg" width="1600" height="1304" alt="Uma casa no alto de um morro ao pôr do sol, em 3D" loading="lazy"></figure>
+  </div>
+  <div class="row flip">
+    <div class="txt"><h3><span lang="pt">Por onde a água corre</span></h3><p><span lang="pt">Os caminhos da água mostram por onde a chuva escorre e se junta. Veja antes de escolher onde vai a casa, a estrada ou a fossa.</span></p></div>
+    <figure class="shot"><img src="img/agua-3d.jpg" width="1600" height="1304" alt="Relevo 3D de uma região de morros com os caminhos da água em azul" loading="lazy"></figure>
+  </div>
+  <div class="row">
+    <div class="txt"><h3><span lang="pt">Declividade como a máquina vê</span></h3><p><span lang="pt">As classes de declividade pintam o chão: verde onde dá para construir e plantar, vermelho onde é íngreme demais e vai exigir corte, muro ou erosão.</span></p></div>
+    <figure class="shot"><img lang="pt" src="img/declividade-pt.jpg" width="1400" height="1162" alt="Mapa com as classes de declividade em verde, amarelo e vermelho" loading="lazy"></figure>
+  </div>
+  <div class="row flip">
+    <div class="txt"><h3><span lang="pt">Onde bate mais sol</span></h3><p><span lang="pt">A exposição ao sol, num dia ou na média do ano, mostra as encostas boas para painéis, horta e pomar, e as que ficam na sombra do morro.</span></p></div>
+    <figure class="shot"><img lang="pt" src="img/exposicao-sol-pt.jpg" width="1400" height="1001" alt="Relevo 3D colorido pela energia solar média do ano" loading="lazy"></figure>
+  </div>
+  <div class="row">
+    <div class="txt"><h3><span lang="pt">A rede elétrica mais perto</span></h3><p><span lang="pt">Linhas e transformadores da distribuidora, dos dados abertos da ANEEL. O Terreno traça o caminho até a subestação e dá uma faixa de custo para ligar a casa ou a bomba.</span></p></div>
+    <figure class="shot"><img lang="pt" src="img/rede-eletrica-pt.jpg" width="1400" height="1162" alt="Mapa com as linhas de média e baixa tensão e os transformadores em volta da fazenda" loading="lazy"></figure>
+  </div>
+  <div class="row flip">
+    <div class="txt"><h3><span lang="pt">Painéis solares que dão conta</span></h3><p><span lang="pt">Solte um arranjo no mapa, defina quantos painéis e veja as fileiras inclinadas no 3D e quanto geram mês a mês, com dados do PVGIS. O Terreno calcula o tamanho que cobre o seu consumo e os melhores ângulos para aquele ponto.</span></p></div>
+    <figure class="shot"><img src="img/solar.jpg" width="1600" height="534" alt="Usina solar de 120 painéis em 3D numa encosta, com a energia de cada mês ao lado" loading="lazy"></figure>
+  </div>
+  <div class="row">
+    <div class="txt"><h3><span lang="pt">A antena enxerga a casa?</span></h3><p><span lang="pt">A linha de visada mostra se o morro bloqueia o sinal, com o perfil do terreno e o ponto exato onde a linha bate.</span></p></div>
+    <figure class="shot"><img lang="pt" src="img/visada-pt.jpg" width="1400" height="553" alt="Linha de visada da antena à casa, bloqueada, com o perfil do terreno" loading="lazy"></figure>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2><span lang="pt">E mais</span></h2>
+  <div class="grid">
+    <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg></div>
+      <h3><span lang="pt">Desenhe no satélite</span></h3>
+      <p><span lang="pt">Casas com vários níveis, estradas, áreas, árvores, antenas e arranjos solares. Busque por endereço ou coordenadas em qualquer notação.</span></p></div>
+    <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2V9z"/><path d="M14 3v6h6M9 15l3 3 3-3M12 11v7"/></svg></div>
+      <h3><span lang="pt">Exporte e compartilhe</span></h3>
+      <p><span lang="pt">KML para o Google Earth, GeoJSON para o QGIS, imagens e um relatório em PDF. Importa os limites do Google Earth.</span></p></div>
+    <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+      <h3><span lang="pt">Assistente de IA (opcional)</span></h3>
+      <p><span lang="pt">"Ponha uma casa de 12 × 8 no ponto mais plano do pomar." Funciona com a sua própria chave (Anthropic, OpenAI, OpenRouter) ou com o Ollama no seu computador.</span></p></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="note">
+    <p><strong><span lang="pt">Para planejar, não para construir.</span></strong></p>
+    <p><span lang="pt">A elevação vem de dados públicos de cerca de 30 m, com erro vertical de alguns metros. Declividades, seções e curvas servem para decidir; antes da terraplenagem, faça o levantamento topográfico.</span></p>
+  </div>
+</div></section>
+
+<section id="baixar"><div class="wrap">
+  <h2><span lang="pt">Baixar o beta</span></h2>
+  <p class="sub"><span lang="pt">Gratuito. Seus planos ficam no seu computador. É um beta: mande sua opinião pelo próprio app, em Ajuda → Enviar comentário.</span></p>
+  <div class="dl" id="dl">
+    <a data-os="mac-arm" href="https://github.com/carvalhorr/terreno-app/releases/download/v0.9.1-beta/Terreno-0.9.1-beta-macos-arm64.dmg"><b>macOS</b><span lang="pt">Apple M1 a M4 · macOS 14 ou mais novo</span></a>
+    <a data-os="mac-intel" href="https://github.com/carvalhorr/terreno-app/releases/download/v0.9.1-beta/Terreno-0.9.1-beta-macos-x86_64.dmg"><b>macOS Intel</b><span lang="pt">Macs Intel · macOS 15 ou mais novo</span></a>
+    <a data-os="win" href="https://github.com/carvalhorr/terreno-app/releases/download/v0.9.1-beta/Terreno-0.9.1-beta-windows-x64.zip"><b>Windows</b><span lang="pt">64 bits · arquivo .zip</span></a>
+    <a data-os="linux" href="https://github.com/carvalhorr/terreno-app/releases/download/v0.9.1-beta/Terreno-0.9.1-beta-linux-x86_64.tar.gz"><b>Linux</b><span lang="pt">x86_64 · arquivo .tar.gz</span></a>
+  </div>
+  <p class="fine"><span lang="pt">Cada instalador tem de 280 a 360 MB. Todas as versões: </span><a href="https://github.com/carvalhorr/terreno-app/releases">github.com/carvalhorr/terreno-app/releases</a></p>
+  <div class="steps">
+    <div class="card"><h3>macOS</h3><ol lang="pt"><li>Abra o arquivo .dmg e arraste o Terreno para Aplicativos.</li><li>Na primeira vez, clique com o botão direito no Terreno → Abrir → Abrir. O beta ainda não é assinado pela Apple, por isso o aviso de "desenvolvedor não identificado".</li><li>Se não aparecer a opção, vá a Ajustes do Sistema → Privacidade e Segurança → Abrir Mesmo Assim.</li></ol></div>
+    <div class="card"><h3>Windows</h3><ol lang="pt"><li>Descompacte o arquivo .zip numa pasta.</li><li>Abra Terreno.exe.</li><li>Se o Windows mostrar "O Windows protegeu o computador", clique em Mais informações → Executar assim mesmo. O beta ainda não é assinado.</li></ol></div>
+    <div class="card"><h3>Linux</h3><ol lang="pt"><li>Descompacte: <code>tar xzf Terreno-*.tar.gz</code></li><li>Rode <code>Terreno/Terreno</code>.</li></ol></div>
+  </div>
+</div></section>
+
+<section id="privacidade"><div class="wrap">
+  <h2><span lang="pt">Privacidade</span></h2>
+  <div class="grid">
+    <div class="card"><h3><span lang="pt">Seus planos são seus</span></h3><p><span lang="pt">Ficam em arquivos no seu computador. Nada do que você desenha é enviado.</span></p></div>
+    <div class="card"><h3><span lang="pt">Estatísticas anônimas</span></h3><p><span lang="pt">Uma vez por dia o app conta, de forma anônima, quais ferramentas foram usadas, a versão e o sistema, para sabermos o que melhorar. Desligue em Editar → Estatísticas de uso.</span></p></div>
+    <div class="card"><h3><span lang="pt">Comentários só quando você pede</span></h3><p><span lang="pt">Ajuda → Enviar comentário mostra exatamente o que vai antes de enviar. O plano só vai se você marcar.</span></p></div>
+  </div>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <span><span lang="pt">Terreno beta 0.9.1. Mapas: Esri e OpenStreetMap; elevação: dados públicos (SRTM); rede elétrica: ANEEL.</span></span>
+  <span><span lang="pt">As imagens mostram uma fazenda de exemplo inventada.</span></span>
+</div></footer>
+
+<script>
+(function () {
+  // highlight the visitor's download (Apple silicon vs Intel can't be told apart reliably: both Mac buttons stay)
+  var ua = navigator.userAgent, os = /Windows/.test(ua) ? "win" : /Mac/.test(ua) ? "mac-arm" : /Linux/.test(ua) && !/Android/.test(ua) ? "linux" : null;
+  if (os) { var a = document.querySelector('#dl a[data-os="' + os + '"]'); if (a) a.classList.add("mine"); }
+})();
+</script>
+</body>
+</html>
