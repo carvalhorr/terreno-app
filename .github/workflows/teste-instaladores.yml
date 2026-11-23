@@ -23,6 +23,8 @@ jobs:
           curl -fsSL -o t.tar.gz "$BASE/Terreno-0.9.1-beta-linux-x86_64.tar.gz"
           ls -l t.tar.gz
           tar xzf t.tar.gz
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libegl1
           ./Terreno/Terreno > saida.log 2>&1 &
           PID=$!
           sleep 30
@@ -32,6 +34,27 @@ jobs:
             echo "FALHOU: o aplicativo fechou"; tail -n 60 saida.log; exit 1
           fi
           tail -n 30 saida.log || true
+      - name: Abrir numa tela virtual e fotografar
+        if: always()
+        env:
+          QT_QPA_PLATFORM: xcb
+        run: |
+          sudo apt-get install -y -qq xvfb imagemagick libgl1 libopengl0 libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 libxcb-shape0 libxcb-xinerama0 libxcb-image0 libxcb-render-util0 libnss3 libasound2t64 || true
+          Xvfb :99 -screen 0 1600x1000x24 &
+          sleep 3
+          export DISPLAY=:99
+          ./Terreno/Terreno > tela.log 2>&1 &
+          PID=$!
+          sleep 45
+          import -window root tela-linux.png || true
+          if kill -0 $PID 2>/dev/null; then echo "OK: aberto com tela apos 45 s"; kill $PID; else echo "FALHOU com tela"; tail -n 60 tela.log; exit 1; fi
+          grep -v "ERROR:" tela.log | tail -n 30 || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tela-linux
+          path: tela-linux.png
+          if-no-files-found: ignore
 
   macos-arm64:
     runs-on: macos-latest
@@ -57,7 +80,25 @@ jobs:
           else
             echo "FALHOU: o aplicativo fechou"; tail -n 60 saida.log; exit 1
           fi
-          tail -n 30 saida.log || true
+          grep -v "ERROR:" saida.log | tail -n 30 || true
+      - name: Abrir com tela e fotografar
+        if: always()
+        env:
+          QT_QPA_PLATFORM: cocoa
+        run: |
+          BIN=./Terreno.app/Contents/MacOS/Terreno
+          "$BIN" > tela.log 2>&1 &
+          PID=$!
+          sleep 45
+          screencapture -x tela-mac.png || true
+          if kill -0 $PID 2>/dev/null; then echo "OK: aberto com tela apos 45 s"; kill $PID; else echo "FALHOU com tela"; tail -n 60 tela.log; exit 1; fi
+          grep -v "ERROR:" tela.log | tail -n 30 || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tela-mac
+          path: tela-mac.png
+          if-no-files-found: ignore
 
   windows:
     runs-on: windows-latest
@@ -80,3 +121,29 @@ jobs:
           Write-Output "OK: aberto apos 30 s; memoria $([math]::Round($p.WorkingSet64/1MB)) MB"
           Stop-Process -Id $p.Id -Force
           Get-Content saida.log, erro.log -Tail 30 -ErrorAction SilentlyContinue
+      - name: Abrir com tela e fotografar
+        if: always()
+        shell: pwsh
+        env:
+          QT_QPA_PLATFORM: windows
+        run: |
+          $p = Start-Process -FilePath .\Terreno\Terreno.exe -PassThru
+          Start-Sleep -Seconds 45
+          try {
+            Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+            $b = [System.Windows.Forms.SystemInformation]::VirtualScreen
+            $bmp = New-Object System.Drawing.Bitmap $b.Width, $b.Height
+            $g = [System.Drawing.Graphics]::FromImage($bmp)
+            $g.CopyFromScreen($b.Left, $b.Top, 0, 0, $bmp.Size)
+            $bmp.Save("$PWD\tela-windows.png")
+          } catch { Write-Output "Sem foto: $_" }
+          $p.Refresh()
+          if ($p.HasExited) { Write-Output "FALHOU com tela (codigo $($p.ExitCode))"; exit 1 }
+          Write-Output "OK: aberto com tela apos 45 s; memoria $([math]::Round($p.WorkingSet64/1MB)) MB"
+          Stop-Process -Id $p.Id -Force
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tela-windows
+          path: tela-windows.png
+          if-no-files-found: ignore
